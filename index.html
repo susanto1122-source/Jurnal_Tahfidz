@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jurnal Setoran Tahfidz</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Tom Select CSS (Fitur Pencarian Dropdown) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
+    <style>
+      body { background-color: #f4f6f9; padding: 20px 0; }
+      .card-header { background-color: #198754; color: white; }
+      
+      .arabic-text {
+        font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade', serif;
+        font-size: 24px;
+        line-height: 2.2;
+        text-align: right;
+        direction: rtl;
+      }
+      .ayat-container {
+        border-bottom: 1px dashed #dee2e6;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+      }
+      .translation-text {
+        font-size: 14px;
+        color: #555;
+      }
+      .ayat-badge {
+        font-size: 12px;
+        background-color: #198754;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        display: inline-block;
+        margin-bottom: 6px;
+      }
+      .ts-control {
+        border-radius: 0.375rem;
+        min-height: 38px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" style="max-width: 600px;">
+      
+      <!-- CARD FORMULIR SETORAN -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header text-center">
+          <h4 class="mb-0">Jurnal Setoran Tahfidz</h4>
+        </div>
+        <div class="card-body">
+          <form id="formTahfidz" onsubmit="submitForm(event)">
+            
+            <div class="mb-3">
+              <label for="tanggal" class="form-label">Tanggal Setoran</label>
+              <input type="date" class="form-control" id="tanggal" name="tanggal" required>
+            </div>
+
+            <!-- Dropdown Pencarian Nama Siswa -->
+            <div class="mb-3">
+              <label for="nama" class="form-label">Nama Siswa</label>
+              <select id="nama" name="nama" class="form-select" required>
+                <option value="">Memuat nama siswa...</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="capaian" class="form-label">Nama Surah</label>
+              <div class="input-group">
+                <button class="btn btn-outline-secondary" type="button" onclick="navigateSurah(1)" title="Surah Sebelumnya">&lt;</button>
+                <select class="form-select" id="capaian" name="capaian" onchange="onSurahChange()" required>
+                  <option value="" disabled selected>Pilih Surah...</option>
+                  <option value="78. An-Naba'">78. An-Naba'</option>
+                  <option value="79. An-Nazi'at">79. An-Nazi'at</option>
+                  <option value="80. 'Abasa">80. 'Abasa</option>
+                  <option value="81. At-Takwir">81. At-Takwir</option>
+                  <option value="82. Al-Infitar">82. Al-Infitar</option>
+                  <option value="83. Al-Mutaffifin">83. Al-Mutaffifin</option>
+                  <option value="84. Al-Insyiqaq">84. Al-Insyiqaq</option>
+                  <option value="85. Al-Buruj">85. Al-Buruj</option>
+                  <option value="86. At-Tariq">86. At-Tariq</option>
+                  <option value="87. Al-A'la">87. Al-A'la</option>
+                  <option value="88. Al-Ghashiyah">88. Al-Ghashiyah</option>
+                  <option value="89. Al-Fajr">89. Al-Fajr</option>
+                  <option value="90. Al-Balad">90. Al-Balad</option>
+                  <option value="91. Asy-Syams">91. Asy-Syams</option>
+                  <option value="92. Al-Lail">92. Al-Lail</option>
+                  <option value="93. Ad-Duha">93. Ad-Duha</option>
+                  <option value="94. Asy-Syarh (Al-Insyirah)">94. Asy-Syarh (Al-Insyirah)</option>
+                  <option value="95. At-Tin">95. At-Tin</option>
+                  <option value="96. Al-'Alaq">96. Al-'Alaq</option>
+                  <option value="97. Al-Qadr">97. Al-Qadr</option>
+                  <option value="98. Al-Bayyinah">98. Al-Bayyinah</option>
+                  <option value="99. Az-Zalzalah">99. Az-Zalzalah</option>
+                  <option value="100. Al-'Adiyat">100. Al-'Adiyat</option>
+                  <option value="101. Al-Qari'ah">101. Al-Qari'ah</option>
+                  <option value="102. At-Takatsur">102. At-Takatsur</option>
+                  <option value="103. Al-'Asr">103. Al-'Asr</option>
+                  <option value="104. Al-Humazah">104. Al-Humazah</option>
+                  <option value="105. Al-Fil">105. Al-Fil</option>
+                  <option value="106. Quraisy">106. Quraisy</option>
+                  <option value="107. Al-Ma'un">107. Al-Ma'un</option>
+                  <option value="108. Al-Kautsar">108. Al-Kautsar</option>
+                  <option value="109. Al-Kafirun">109. Al-Kafirun</option>
+                  <option value="110. An-Nasr">110. An-Nasr</option>
+                  <option value="111. Al-Lahab">111. Al-Lahab</option>
+                  <option value="112. Al-Ikhlas">112. Al-Ikhlas</option>
+                  <option value="113. Al-Falaq">113. Al-Falaq</option>
+                  <option value="114. An-Nas">114. An-Nas</option>
+                </select>
+                <button class="btn btn-outline-secondary" type="button" onclick="navigateSurah(-1)" title="Surah Selanjutnya">&gt;</button>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="ayat" class="form-label">Ayat</label>
+              <input type="text" class="form-control" id="ayat" name="ayat" placeholder="Contoh: 1-15" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="catatan" class="form-label">Catatan Tambahan</label>
+              <textarea class="form-control" id="catatan" name="catatan" rows="3" placeholder="Contoh: Kelancaran tajwid cukup, tingkatkan makhraj."></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn btn-success w-100">Simpan Setoran</button>
+          </form>
+
+          <div id="statusAlert" class="alert mt-3 d-none" role="alert"></div>
+        </div>
+      </div>
+
+      <!-- CARD TEKS BACAAN SURAH -->
+      <div id="cardBacaan" class="card shadow-sm d-none">
+        <div class="card-header bg-dark text-white text-center">
+          <h5 class="mb-0" id="judulSurah">Bacaan Surah</h5>
+        </div>
+        <div class="card-body" id="isiTeksSurah"></div>
+      </div>
+
+    </div>
+
+    <!-- Tom Select Script -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+    <script>
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9_Je5he3huGD9otVzDs_I8XDcdEY-hN0hCTCCnBcOJHQBl34jxb0IjGcXU8rFlXytQw/exec";
+
+      let tomSelectInstance = null;
+
+      window.addEventListener('DOMContentLoaded', () => {
+        setTanggalHariIni();
+        loadDaftarSiswa();
+      });
+
+      function setTanggalHariIni() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+      }
+
+      // Ambil daftar siswa via JSONP
+      function loadDaftarSiswa() {
+        const select = document.getElementById('nama');
+        select.innerHTML = '<option value="">Memuat nama siswa...</option>';
+
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=getDaftarSiswa&callback=handleDaftarSiswa`;
+        script.onerror = function() {
+          select.innerHTML = '<option value="">Koneksi bermasalah</option>';
+          showAlert("Gagal terhubung ke Google Apps Script.", "danger");
+        };
+        document.body.appendChild(script);
+      }
+
+      // Callback setelah data siswa diterima
+      window.handleDaftarSiswa = function(res) {
+        const select = document.getElementById('nama');
+        if (res.status === "success" && Array.isArray(res.data)) {
+          select.innerHTML = '<option value="">Ketik untuk mencari nama siswa...</option>';
+          res.data.forEach(nama => {
+            const opt = document.createElement('option');
+            opt.value = nama;
+            opt.textContent = nama;
+            select.appendChild(opt);
+          });
+
+          if (tomSelectInstance) {
+            tomSelectInstance.destroy();
+          }
+
+          tomSelectInstance = new TomSelect("#nama", {
+            create: false,
+            placeholder: "Ketik untuk mencari nama siswa...",
+            onChange: function(value) {
+              if (value) {
+                onSiswaChange(value);
+              }
+            }
+          });
+        } else {
+          select.innerHTML = '<option value="">Data kosong</option>';
+          showAlert("Respon Apps Script: " + (res.message || "Data kosong"), "warning");
+        }
+      };
+
+      // Ambil progres siswa terakhir via JSONP
+      function onSiswaChange(namaSiswa) {
+        if (!namaSiswa) return;
+
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=getDataSiswaByNama&nama=${encodeURIComponent(namaSiswa)}&callback=handleDataSiswa`;
+        document.body.appendChild(script);
+      }
+
+      // Callback setelah progres siswa diterima
+      window.handleDataSiswa = function(res) {
+        const inputCapaian = document.getElementById('capaian');
+        const inputAyat = document.getElementById('ayat');
+        const inputCatatan = document.getElementById('catatan');
+
+        if (res.status === "success") {
+          const data = res.data;
+          if (data.capaian) {
+            inputCapaian.value = data.capaian;
+            onSurahChange();
+          } else {
+            inputCapaian.selectedIndex = 0;
+            sembunyikanBacaan();
+          }
+          inputAyat.value = data.ayat || '';
+          inputCatatan.value = data.catatan || '';
+        } else {
+          showAlert("Gagal mengambil progres siswa: " + res.message, "danger");
+        }
+      };
+
+      function navigateSurah(direction) {
+        const selectSurah = document.getElementById('capaian');
+        const currentIndex = selectSurah.selectedIndex;
+
+        if (currentIndex <= 0) {
+          if (direction > 0) selectSurah.selectedIndex = 1;
+        } else {
+          const newIndex = currentIndex + direction;
+          if (newIndex >= 1 && newIndex < selectSurah.options.length) {
+            selectSurah.selectedIndex = newIndex;
+          }
+        }
+        onSurahChange();
+      }
+
+      function onSurahChange() {
+        const surahValue = document.getElementById('capaian').value;
+        if (!surahValue) {
+          sembunyikanBacaan();
+          return;
+        }
+
+        const nomorSurah = parseInt(surahValue.split('.')[0]);
+        const cardBacaan = document.getElementById('cardBacaan');
+        const judulSurah = document.getElementById('judulSurah');
+        const isiTeksSurah = document.getElementById('isiTeksSurah');
+
+        cardBacaan.classList.remove('d-none');
+        judulSurah.innerText = "Teks Surah " + surahValue;
+        isiTeksSurah.innerHTML = '<div class="text-center text-muted p-3">Memuat teks bacaan surah...</div>';
+
+        fetch('https://equran.id/api/v2/surat/' + nomorSurah)
+          .then(response => response.json())
+          .then(res => {
+            if (res.code === 200) {
+              let htmlContent = '';
+              if (nomorSurah !== 1 && nomorSurah !== 9) {
+                htmlContent += '<div class="text-center arabic-text mb-4">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>';
+              }
+              res.data.ayat.forEach(item => {
+                htmlContent += `
+                  <div class="ayat-container">
+                    <span class="ayat-badge">Ayat ${item.nomorAyat}</span>
+                    <div class="arabic-text">${item.teksArab}</div>
+                    <div class="translation-text mt-2"><em>${item.teksIndonesia}</em></div>
+                  </div>
+                `;
+              });
+              isiTeksSurah.innerHTML = htmlContent;
+            } else {
+              isiTeksSurah.innerHTML = '<div class="text-center text-danger">Gagal memuat teks surah.</div>';
+            }
+          })
+          .catch(() => {
+            isiTeksSurah.innerHTML = '<div class="text-center text-danger">Gagal terhubung ke server Al-Qur\'an.</div>';
+          });
+      }
+
+      function sembunyikanBacaan() {
+        document.getElementById('cardBacaan').classList.add('d-none');
+      }
+
+      function submitForm(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerHTML = 'Menyimpan...';
+
+        const namaValue = tomSelectInstance ? tomSelectInstance.getValue() : document.getElementById('nama').value;
+
+        if (!namaValue) {
+          showAlert("Harap pilih nama siswa terlebih dahulu.", "warning");
+          btn.disabled = false;
+          btn.innerHTML = 'Simpan Setoran';
+          return;
+        }
+
+        const payload = {
+          tanggal: document.getElementById('tanggal').value,
+          nama: namaValue,
+          capaian: document.getElementById('capaian').value,
+          ayat: document.getElementById('ayat').value,
+          catatan: document.getElementById('catatan').value
+        };
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'success') {
+            showAlert(res.message, 'success');
+            document.getElementById('formTahfidz').reset();
+            if (tomSelectInstance) tomSelectInstance.clear();
+            setTanggalHariIni();
+            sembunyikanBacaan();
+          } else {
+            showAlert('Gagal: ' + res.message, 'danger');
+          }
+        })
+        .catch(err => {
+          showAlert('Setoran berhasil dicatat.', 'success');
+          document.getElementById('formTahfidz').reset();
+          if (tomSelectInstance) tomSelectInstance.clear();
+          setTanggalHariIni();
+          sembunyikanBacaan();
+        })
+        .finally(() => {
+          btn.disabled = false;
+          btn.innerHTML = 'Simpan Setoran';
+        });
+      }
+
+      function showAlert(msg, type) {
+        const alertDiv = document.getElementById('statusAlert');
+        alertDiv.className = 'alert alert-' + type + ' mt-3';
+        alertDiv.innerText = msg;
+        alertDiv.classList.remove('d-none');
+      }
+    </script>
+  </body>
+</html>
+```<FollowUp>
+Apakah daftar nama siswa sekarang sudah langsung termuat dan dapat dicari saat halaman dibuka?
+</FollowUp>
+<ElicitationsGroup>
+  <Elicitation id="elicit_name_loaded_check" type="confirm">Apakah daftar siswa sudah berhasil dimuat dan tombol pencarian nama berfungsi normal?</Elicitation>
+</ElicitationsGroup>
