@@ -52,6 +52,9 @@
         border-radius: 0.375rem;
         min-height: 38px;
       }
+      .ts-dropdown {
+        z-index: 1050;
+      }
     </style>
   </head>
   <body>
@@ -121,11 +124,16 @@
                   <input type="date" class="form-control" id="tanggal" name="tanggal" required>
                 </div>
 
+                <!-- Dropdown Multi-Select (Maksimal 3 Siswa) -->
                 <div class="mb-3">
-                  <label for="nama" class="form-label">Nama Siswa</label>
-                  <select id="nama" name="nama" class="form-select" required>
+                  <label for="nama" class="form-label d-flex justify-content-between">
+                    <span>Nama Siswa <small class="text-muted">(Maksimal 3 siswa)</small></span>
+                    <span id="labelAnakUtama" class="badge bg-secondary d-none"></span>
+                  </label>
+                  <select id="nama" name="nama" class="form-select" multiple required>
                     <option value="">Memuat nama siswa...</option>
                   </select>
+                  <div class="form-text">Data surah, ayat, dan catatan akan otomatis diselaraskan dengan anak pertama yang dipilih.</div>
                 </div>
 
                 <div class="mb-3">
@@ -216,11 +224,12 @@
 
       let tomSelectInstance = null;
       let dataRekapGlobal = [];
+      let currentFirstStudent = "";
 
       window.addEventListener('DOMContentLoaded', () => {
         setTanggalHariIni();
-        loadRekap();       // Langsung muat data rekap di halaman awal
-        loadDaftarSiswa(); // Muat data dropdown nama untuk form
+        loadRekap();
+        loadDaftarSiswa();
       });
 
       function setTanggalHariIni() {
@@ -283,7 +292,7 @@
         renderTabelRekap(filtered);
       }
 
-      // --- BAGIAN 2: FORM JURNAL ---
+      // --- BAGIAN 2: FORM JURNAL MULTI-SELECT ---
       function loadDaftarSiswa() {
         const select = document.getElementById('nama');
         select.innerHTML = '<option value="">Memuat nama siswa...</option>';
@@ -300,7 +309,7 @@
       window.handleDaftarSiswa = function(res) {
         const select = document.getElementById('nama');
         if (res.status === "success" && Array.isArray(res.data)) {
-          select.innerHTML = '<option value="">Ketik untuk mencari nama siswa...</option>';
+          select.innerHTML = '';
           res.data.forEach(nama => {
             const opt = document.createElement('option');
             opt.value = nama;
@@ -312,21 +321,44 @@
             tomSelectInstance.destroy();
           }
 
+          // Inisialisasi multi-select maksimal 3 anak
           tomSelectInstance = new TomSelect("#nama", {
-            create: false,
-            placeholder: "Ketik untuk mencari nama siswa...",
-            onChange: function(value) {
-              if (value) {
-                onSiswaChange(value);
-              }
+            maxItems: 3,
+            plugins: ['remove_button'],
+            placeholder: "Pilih 1 s.d. 3 siswa...",
+            onChange: function(values) {
+              handleStudentsSelection(values);
             }
           });
         }
       };
 
-      function onSiswaChange(namaSiswa) {
-        if (!namaSiswa) return;
+      // Logika penanganan anak pertama
+      function handleStudentsSelection(values) {
+        const labelBadge = document.getElementById('labelAnakUtama');
+        
+        if (!values || values.length === 0) {
+          currentFirstStudent = "";
+          labelBadge.classList.add('d-none');
+          document.getElementById('capaian').selectedIndex = 0;
+          document.getElementById('ayat').value = '';
+          document.getElementById('catatan').value = '';
+          sembunyikanBacaan();
+          return;
+        }
 
+        const firstStudent = values[0];
+        labelBadge.textContent = "Data acuan: " + firstStudent;
+        labelBadge.classList.remove('d-none');
+
+        // Jika anak pertama berubah, minta data progres anak tersebut
+        if (firstStudent !== currentFirstStudent) {
+          currentFirstStudent = firstStudent;
+          ambilProgresSiswa(firstStudent);
+        }
+      }
+
+      function ambilProgresSiswa(namaSiswa) {
         const timestamp = new Date().getTime();
         const script = document.createElement('script');
         script.src = `${SCRIPT_URL}?action=getDataSiswaByNama&nama=${encodeURIComponent(namaSiswa)}&callback=handleDataSiswa&_t=${timestamp}`;
@@ -420,10 +452,12 @@
         btn.disabled = true;
         btn.innerHTML = 'Menyimpan...';
 
-        const namaValue = tomSelectInstance ? tomSelectInstance.getValue() : document.getElementById('nama').value;
+        // Ambil array nama terpilih (1 sampai 3 anak)
+        const selectedStudents = tomSelectInstance ? tomSelectInstance.getValue() : [];
+        const namaList = Array.isArray(selectedStudents) ? selectedStudents : [selectedStudents];
 
-        if (!namaValue) {
-          showAlert("Harap pilih nama siswa terlebih dahulu.", "warning");
+        if (namaList.length === 0 || !namaList[0]) {
+          showAlert("Harap pilih minimal 1 nama siswa.", "warning");
           btn.disabled = false;
           btn.innerHTML = 'Simpan Setoran';
           return;
@@ -431,7 +465,7 @@
 
         const payload = {
           tanggal: document.getElementById('tanggal').value,
-          nama: namaValue,
+          nama: namaList, // Mengirim array nama siswa
           capaian: document.getElementById('capaian').value,
           ayat: document.getElementById('ayat').value,
           catatan: document.getElementById('catatan').value
@@ -447,17 +481,19 @@
             showAlert(res.message, 'success');
             document.getElementById('formTahfidz').reset();
             if (tomSelectInstance) tomSelectInstance.clear();
+            document.getElementById('labelAnakUtama').classList.add('d-none');
             setTanggalHariIni();
             sembunyikanBacaan();
-            loadRekap(); // Refresh data tabel rekap otomatis di latar belakang
+            loadRekap();
           } else {
             showAlert('Gagal: ' + res.message, 'danger');
           }
         })
         .catch(err => {
-          showAlert('Setoran berhasil dicatat.', 'success');
+          showAlert('Setoran untuk ' + namaList.join(", ") + ' berhasil dicatat.', 'success');
           document.getElementById('formTahfidz').reset();
           if (tomSelectInstance) tomSelectInstance.clear();
+          document.getElementById('labelAnakUtama').classList.add('d-none');
           setTanggalHariIni();
           sembunyikanBacaan();
           loadRekap();
